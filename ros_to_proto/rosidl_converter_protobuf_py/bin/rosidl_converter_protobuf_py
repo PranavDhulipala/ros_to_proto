@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+
+"""
+Generator script for rosidl_converter_protobuf_py.
+
+This script is called during the build process to generate 
+Python conversion code between ROS 2 and Protocol Buffer messages.
+"""
+
+import argparse
+import sys
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('rosidl_converter_protobuf_py')
+
+def main(argv=sys.argv[1:]):
+    """
+    Process command line arguments and run the generator.
+
+    Args:
+        argv: List of command line arguments (default: sys.argv[1:])
+    """
+    parser = argparse.ArgumentParser(
+        description="Generate the Python interfaces for Protobuf type support.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--generator-arguments-file",
+        required=True,
+        help="The location of the file containing the generator arguments",
+    )
+    args = parser.parse_args(argv)
+
+    try:
+        # Import dependencies after args are parsed to catch CLI errors quickly
+        from rosidl_typesupport_protobuf import (
+            set_namespace_delimeter,
+            set_type_support_name
+        )
+        # Configure for Python type support
+        set_namespace_delimeter(".")
+        set_type_support_name("rosidl_converter_protobuf_py")
+
+        # Import the generator function
+        from rosidl_converter_protobuf_py.generate import generate_py
+
+        # Generate typesupport Python files
+        rc = generate_py(args.generator_arguments_file)
+        
+        logger.info("Generator completed with return code: %s", rc)
+        return rc
+    
+    except ImportError as e:
+        logger.error("Import error: %s", e)
+        logger.error("Check that all dependencies are installed.")
+        return 1
+    except Exception as e:
+        logger.error("Error during generation: %s", e)
+        import traceback
+        logger.error(traceback.format_exc())
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

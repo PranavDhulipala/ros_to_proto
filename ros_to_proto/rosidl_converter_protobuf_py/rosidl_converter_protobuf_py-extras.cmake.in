@@ -1,0 +1,16 @@
+find_package(Protobuf REQUIRED)
+if(NOT Protobuf_FOUND)
+  message(STATUS "Could not find Protobuf - skip rosidl_converter_protobuf_py")
+else()
+  find_package(ament_cmake_core QUIET REQUIRED)
+  
+  # Include the register script
+  include("${rosidl_converter_protobuf_py_DIR}/register_protobuf_py.cmake")
+  
+  # Register the extension
+  rosidl_converter_protobuf_py_extras(
+    "${rosidl_converter_protobuf_py_DIR}/../../../lib/rosidl_converter_protobuf_py/rosidl_converter_protobuf_py"
+    "${rosidl_converter_protobuf_py_DIR}/../../../@PYTHON_INSTALL_DIR@/rosidl_converter_protobuf_py/__init__.py"
+    "${rosidl_converter_protobuf_py_DIR}/../resource"
+  )
+endif()
